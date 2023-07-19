@@ -1,0 +1,1 @@
+export const BASE_URL = 'https://didit-360-backend.onrender.com'
