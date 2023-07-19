@@ -1,4 +1,4 @@
-"use client"; 
+"use client";
 
 import { useEffect, useState } from "react";
 import { Formik, FormikProps, FormikValues } from 'formik';
@@ -6,9 +6,11 @@ import Papa from "papaparse";
 import { toast } from "react-toastify";
 import axios from 'axios'
 import { BASE_URL } from "../constants";
+import { PhotoIcon, UserCircleIcon } from '@heroicons/react/24/solid'
 
 
-const ProductUpload = (props: any) =>  {
+
+const ProductUpload = (props: any) => {
 
   const [jsonFromCsv, setJsonFromCsv] = useState<any>([]);
   const [invalidJsonFromCsv, setInvalidJsonFromCsv] = useState<any>([]);
@@ -53,28 +55,28 @@ const ProductUpload = (props: any) =>  {
     { label: "reason", key: "reason" }
   ];
 
-  const validate = (values: FormikValues) => {   
+  const validate = (values: FormikValues) => {
     const errors: any = {};
     if (!values.products) {
-        errors.products = 'Please upload a CSV file';
-        setJsonFromCsv([]);
-        setInvalidJsonFromCsv([]);
+      errors.products = 'Please upload a CSV file';
+      setJsonFromCsv([]);
+      setInvalidJsonFromCsv([]);
     }
-    if(values.file){
+    if (values.file) {
       console.log(values, "THE VALUES")
       const format = values.file.name?.substring(values.file.name.lastIndexOf('.') + 1);
-      if(format !== 'csv'){
+      if (format !== 'csv') {
         errors.products = 'Invalid format, only CSV can be uploaded';
-      }else if(values.file.size > 524288){
+      } else if (values.file.size > 524288) {
         errors.products = 'File must not be more than 512 KB';
       } else {
         handleFileChange(values.file)
       }
     }
     return errors;
-}
+  }
 
-const handleFileChange = (file: File) => {
+  const handleFileChange = (file: File) => {
     Papa.parse(file, {
       ...commonConfig,
       complete: (result: any) => {
@@ -88,7 +90,7 @@ const handleFileChange = (file: File) => {
             });
             // newData.push(reformed);
             console.log(reformed, "THE REFORMED")
-            if(reformed.name !== "") {
+            if (reformed.name !== "") {
               let formatted = {
                 name: reformed?.name,
                 cbd: reformed?.cbd,
@@ -104,7 +106,7 @@ const handleFileChange = (file: File) => {
                 flavours: reformed?.flavours,
                 effects: reformed?.effects,
                 image: reformed?.image,
-                landrace:reformed.landrace,
+                landrace: reformed.landrace,
                 gassy: reformed.gassy,
                 fruity: reformed.fruity,
                 originate: reformed?.originate,
@@ -119,9 +121,9 @@ const handleFileChange = (file: File) => {
         setJsonFromCsv(newData);
         setInvalidJsonFromCsv(invalidData);
       }
-   });
+    });
   }
-  
+
   console.log(jsonFromCsv, "NA ME NA HAM")
   const checkName = (e: any) => {
     const regex = new RegExp('^[a-zA-Z ]+$');
@@ -131,37 +133,37 @@ const handleFileChange = (file: File) => {
       return false;
     }
   };
-  
+
 
 
   const moveBulkToNominated = (values: any, controls: any) => {
-    if(jsonFromCsv.length === 0) {
-      if(invalidJsonFromCsv.length > 0) {
+    if (jsonFromCsv.length === 0) {
+      if (invalidJsonFromCsv.length > 0) {
         // toast.warning('You are trying to upload records with invalid data, please check and upload again');
         controls.setSubmitting(false);
         return;
       }
-    //   toast.warning('You are trying to upload an empty/invalid file, please change to file with valid data');
+      //   toast.warning('You are trying to upload an empty/invalid file, please change to file with valid data');
       controls.setSubmitting(false);
       return;
     }
-     if(invalidJsonFromCsv.length > 0) {
-    //   toast.warning('Please note that only valid records were uploaded');
+    if (invalidJsonFromCsv.length > 0) {
+      //   toast.warning('Please note that only valid records were uploaded');
     }
     setShowDownload(false);
     const rejectedChildren: any = [];
-    const data = {products: jsonFromCsv}
+    const data = { products: jsonFromCsv }
     console.log(data, "THE DATAAAAA")
 
-    axios.post(`http://localhost:5000/products/upload`, data)
-    .then((res: any) => {
+    axios.post(`${BASE_URL}products/upload`, data)
+      .then((res: any) => {
         console.log(res, "THE RESSSS")
         controls.setSubmitting(false)
-    }).catch ((err) => {
+      }).catch((err) => {
         console.log(err, "THE ERRRR")
         controls.setSubmitting(false);
 
-    })
+      })
 
 
 
@@ -176,87 +178,107 @@ const handleFileChange = (file: File) => {
       <div className="modal-bg"></div>
       <div className={"modal-container large"}>
         <div className="modal-content">
-          
+
           {/* Any content goes in here */}
           <div>
             <Formik initialValues={{
-                products: ''
+              products: ''
             }}
-            validate={(value) => validate(value)}
-            onSubmit={(values, controls) => moveBulkToNominated(values, controls)}
+              validate={(value) => validate(value)}
+              onSubmit={(values, controls) => moveBulkToNominated(values, controls)}
             >
-                {
-                    (props: FormikProps<{
-                        products: string
-                    }>) => {
-                        const {
-                            values,
-                            errors,
-                            touched,
-                            isSubmitting,
-                            setFieldValue,
-                            handleBlur,
-                            handleChange,
-                            handleSubmit,
-                        } = props;
-                        return (
-                            <form action="" onSubmit={handleSubmit} style={{padding: '15px'}}>
-                                <div className='styled-form'>
-                                  <h4 className="text-center">Upload Products</h4>
-                                  <div className="pt-3 text-center text-success">
-                                    <a href='' target={'_blank'} download="sample_children_nomination.csv">
-                                      <i className="fa-solid fa-cloud-arrow-down increased-x"></i>
-                                    </a>
-                                    <a href='' target={'_blank'} download="sample_children_nomination.csv">
-                                      <p className="reduced">Download sample file</p>
-                                    </a>
-                                    
-                                  </div>
-                                  <label>Upload CSV Files</label>
-                                  <input
-                                      type="file"
-                                      id='products'
-                                      value={values.products}
-                                      onBlur={handleBlur}
-                                      onChange={(event: any) => {
-                                        handleChange(event);
-                                        setFieldValue("file", event.currentTarget.files[0]);
-                                      }}
-                                      className={(errors.products && touched.products) ? 'im-error' : ''}
-                                  />
-                                  {
-                                      errors.products && touched.products &&
-                                      <p className='reduced error-popup pt-1 mb-0'>{errors.products}</p>
-                                  }
+              {
+                (props: FormikProps<{
+                  products: string
+                }>) => {
+                  const {
+                    values,
+                    errors,
+                    touched,
+                    isSubmitting,
+                    setFieldValue,
+                    handleBlur,
+                    handleChange,
+                    handleSubmit,
+                  } = props;
+                  return (
+                    <form action="" onSubmit={handleSubmit} style={{ padding: '15px' }}>
+                      <div className='md:px-20 px-5 '>
+                        <h4 className="text-center">Upload Products</h4>
+                        <div className="pt-3 text-center text-success">
+                          <a href='' target={'_blank'} download="sample_children_nomination.csv">
+                            <i className="fa-solid fa-cloud-arrow-down increased-x"></i>
+                          </a>
+                          <a href='' target={'_blank'} download="sample_children_nomination.csv">
+                            <p className="reduced">Download sample file</p>
+                          </a>
+
+                        </div>
+                        <label>Upload CSV Files</label>
+                        <input
+                          type="file"
+                          id='products'
+                          value={values.products}
+                          onBlur={handleBlur}
+                          onChange={(event: any) => {
+                            handleChange(event);
+                            setFieldValue("file", event.currentTarget.files[0]);
+                          }}
+                          className={(errors.products && touched.products) ? 'im-error' : ''}
+                        />
+
+                        <div className="col-span-full">
+                          <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
+                            <div className="text-center">
+                              <PhotoIcon className="mx-auto h-12 w-12 text-gray-300" aria-hidden="true" />
+                              <div className="mt-4 flex text-sm leading-6 text-gray-600">
+                                <label
+                                  htmlFor="file-upload"
+                                  className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
+                                >
+                                  <span>Upload a file</span>
+                                  <input id="file-upload" name="file-upload" type="file" className="sr-only" />
+                                  
+                                </label>
+                                <p className="pl-1">or drag and drop</p>
                               </div>
-                              
-                              {
-                                !showDownload && jsonFromCsv.length > 0 &&
-                                <>
-                                  <h6 className="pt-3 text-center increased">Valid Records</h6>
-                                  {/* <DataTables hidePagination data={jsonFromCsv} columns={tableColumns}/> */}
-                                </>
-                              }
-                              {
-                                jsonFromCsv.length === 0 && invalidJsonFromCsv.length > 0 &&
-                                <h6 className="text-center pt-3 text-danger">No Valid Records</h6>
-                              }
-                              {
-                                !showDownload && invalidJsonFromCsv.length > 0 &&
-                                <>
-                                  <h6 className="pt-3 text-center increased">Invalid Records</h6>
-                                  {/* <DataTables hidePagination data={invalidJsonFromCsv} columns={rejectedTableColumns}/> */}
-                                </>
-                              }
-                              <div className='text-center pt-3 pb-2'> 
-                                {
-                                  !showDownload && 
-                                  <>
-                                    <button type='button' className='btn btn-danger mx-0 mr-3 text-black' disabled={isSubmitting}>Cancel</button>
-                                    <button type='submit' className='btn btn-success mx-0 text-black' disabled={isSubmitting}>{isSubmitting ? 'Processing..' : 'Submit'}</button>
-                                  </>
-                                }
-                                {/* {showDownload && <CSVLink
+                              <p className="text-xs leading-5 text-gray-600">PNG, JPG, GIF up to 10MB</p>
+                            </div>
+                          </div>
+                        </div>
+                        {
+                          errors.products && touched.products &&
+                          <p className='reduced error-popup pt-1 mb-0'>{errors.products}</p>
+                        }
+                      </div>
+
+                      {
+                        !showDownload && jsonFromCsv.length > 0 &&
+                        <>
+                          <h6 className="pt-3 text-center increased">Valid Records</h6>
+                          {/* <DataTables hidePagination data={jsonFromCsv} columns={tableColumns}/> */}
+                        </>
+                      }
+                      {
+                        jsonFromCsv.length === 0 && invalidJsonFromCsv.length > 0 &&
+                        <h6 className="text-center pt-3 text-danger">No Valid Records</h6>
+                      }
+                      {
+                        !showDownload && invalidJsonFromCsv.length > 0 &&
+                        <>
+                          <h6 className="pt-3 text-center increased">Invalid Records</h6>
+                          {/* <DataTables hidePagination data={invalidJsonFromCsv} columns={rejectedTableColumns}/> */}
+                        </>
+                      }
+                      <div className='text-center pt-3 pb-2'>
+                        {
+                          !showDownload &&
+                          <>
+                            <button type='button' className='btn btn-danger mx-0 mr-3 text-black' disabled={isSubmitting}>Cancel</button>
+                            <button type='submit' className='btn btn-success mx-0 text-black' disabled={isSubmitting}>{isSubmitting ? 'Processing..' : 'Submit'}</button>
+                          </>
+                        }
+                        {/* {showDownload && <CSVLink
                                   headers={headers}
                                   enclosingCharacter={``}
                                   data={rejectedChildrenArrray}
@@ -266,15 +288,15 @@ const handleFileChange = (file: File) => {
                                 >
                                   Download Records
                                 </CSVLink>} */}
-                                {
-                                  showDownload && 
-                                  <button type='button' className='btn btn-light ml-2'>Close</button>
-                                }
-                              </div>
-                            </form>
-                        );
-                    }
+                        {
+                          showDownload &&
+                          <button type='button' className='btn btn-light ml-2'>Close</button>
+                        }
+                      </div>
+                    </form>
+                  );
                 }
+              }
             </Formik>
           </div>
           {/* Content ends  here */}
