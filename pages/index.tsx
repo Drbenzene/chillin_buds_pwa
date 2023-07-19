@@ -32,7 +32,8 @@ function Index() {
           onChange={handleSearch}
           onKeyDown={handleKeyPress}
           value={search}
-          type="text" placeholder="Search with (name, flavour, effect, terpenes, helps, affects, etc)" className="md:w-1/2 mx-5  w-full h-12 p-5 rounded-lg border-none outline-none focus:ring-2 focus:ring-green-800 focus:ring-opacity-50" />
+          type="text" placeholder="Search with (name, flavour, effect, terpenes, helps, affects, etc)" 
+          className="md:w-1/2 mx-5 mx-5 md:mx-0 w-full h-12 p-5 rounded-lg border-none outline-none focus:ring-2 focus:ring-green-800 focus:ring-opacity-50" />
 
 
 
